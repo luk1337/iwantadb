@@ -120,8 +120,13 @@ if [ "$SYSTEM_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM" ]; then
   fi
 fi
 
-ui_print "Copying files"
-unzip -qq "$ZIP" system/etc/init/iwantadb.rc system/bin/iwantadb -d "${SYSTEM_MNT}/"
+if [ -f "${SYSTEM_MNT}/system/bin/iwantadb" ]; then
+  ui_print "Deleting files"
+  rm "${SYSTEM_MNT}/system/etc/init/iwantadb.rc" "${SYSTEM_MNT}/system/bin/iwantadb"
+else
+  ui_print "Copying files"
+  unzip -qq "$ZIP" system/etc/init/iwantadb.rc system/bin/iwantadb -d "${SYSTEM_MNT}/"
+fi
 
 unmount_partition
 
