@@ -20,7 +20,7 @@ error() {
 }
 
 error_no_space() {
-  error "Not enough space for ih8sn! Aborting"
+  error "Not enough space for iwantadb! Aborting"
 }
 
 error_mounting() {
@@ -58,8 +58,8 @@ find_block() {
   fi
 }
 
-compute_ih8sn_space() {
-  # Set minimum space required for ih8sn 10mb + STORAGE_BUFFER
+compute_iwantadb_space() {
+  # Set minimum space required for iwantadb 10mb + STORAGE_BUFFER
   NEEDED_STORAGE_SYSTEM=$(expr $STORAGE_BUFFER + $STORAGE_BUFFER)
 
   RECLAIMABLE_STORAGE_SYSTEM=$(find . -type f | sed "s|^./|${SYSTEM_MNT}/system/|" | xargs ls -d 2>/dev/null | xargs du -cs PLACEHOLDER 2>/dev/null | tail -n1 |  cut -f1)
@@ -67,7 +67,7 @@ compute_ih8sn_space() {
 }
 
 ui_print "**********************"
-ui_print "ih8sn installer"
+ui_print "iwantadb installer"
 ui_print "**********************"
 
 ui_print "Mounting system partition"
@@ -112,31 +112,16 @@ fi
 SYSTEM_STORAGE=`df $SYSTEM_MNT | tail -1 | tr -s ' ' | cut -d ' ' -f4`
 STORAGE_BUFFER=10240
 
-compute_ih8sn_space
+compute_iwantadb_space
 if [ "$SYSTEM_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM" ]; then
-  compute_ih8sn_space
+  compute_iwantadb_space
   if [ "$SYSTEM_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM" ]; then
     error_no_space
   fi
 fi
 
-# Set ih8sn config
-SERIALNO=$(getprop ro.boot.serialno)
-PRODUCT=$(getprop ro.build.product)
-DEFAULT_CONFIG=system/etc/ih8sn.conf
-if [[ `unzip -l $ZIP | grep ih8sn.conf.$SERIALNO$` ]] && [[ ! -z "$SERIALNO" ]]; then
-  CONFIG=$DEFAULT_CONFIG.$SERIALNO
-elif [[ `unzip -l $ZIP | grep ih8sn.conf.$PRODUCT$` ]] && [[ ! -z "$PRODUCT" ]]; then
-  CONFIG=$DEFAULT_CONFIG.$PRODUCT
-else
-  CONFIG=$DEFAULT_CONFIG
-fi
-
 ui_print "Copying files"
-unzip -qq "$ZIP" system/etc/init/ih8sn.rc system/addon.d/60-ih8sn.sh system/bin/ih8sn -d "${SYSTEM_MNT}/"
-
-ui_print "Using ih8sn config: $CONFIG"
-unzip -qqp "$ZIP" $CONFIG > "${SYSTEM_MNT}/$DEFAULT_CONFIG"
+unzip -qq "$ZIP" system/etc/init/iwantadb.rc system/bin/iwantadb -d "${SYSTEM_MNT}/"
 
 unmount_partition
 
